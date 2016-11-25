@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>stock analysis</title>
+		<script type="text/javascript" src="http://cdn.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
+		<style type="text/css">
+            ${demo.css}
+		</style>
+		<script type="text/javascript">
+            function getUrlArgStr(){
+                var q=location.pathname;
+                q = q.substring(1,q.lenght)
+                return q;
+            }
+
+            $(function () {
+                var ss = getUrlArgStr();
+                {#  需要修改为服务器的IP及端口 #}
+                var localhost = "http://192.168.1.106:5000/"
+                var chart = Highcharts.stockChart('container', {
+                    rangeSelector: {
+                        selected: 1
+                    },
+                    tooltip: {
+                        backgroundColor: {
+                            linearGradient: [255, 0, 0, 60],
+                            stops: [
+                                [0, '#FFFFFF'],
+                                [1, '#E0E0E0']
+                            ]
+                        },
+                        borderWidth: 1,
+                        borderColor: '#AAA'
+                    },
+                    title: {
+                        text: '买卖点分析'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Exchange rate'
+                        }
+                    }
+                });
+                $.getJSON(localhost+'stock/'+ss, function (data) {
+                    chart.addSeries({
+                        name: 'close',
+                        data: data
+                    });
+                });
+
+                $.getJSON(localhost+'zig/'+ss, function (data) {
+                    chart.addSeries({
+                        name: 'zig',
+                        data: data
+                    });
+                });
+
+                $.getJSON(localhost+'buy/'+ss, function (data) {
+                    chart.addSeries({
+                        name: 'buy',
+                        data: data,
+                        type: 'flags',
+                        width: 16,
+                        title:'B',
+                        shape: 'circlepin',
+                        style: {
+                            color: 'red'
+                        }
+                    });
+                });
+
+                $.getJSON(localhost+'sell/'+ss, function (data) {
+                    chart.addSeries({
+                        name: 'sell',
+                        data: data,
+                        type: 'flags',
+                        width: 16,
+                        title:'S',
+                        shape: 'squarepin',
+                        style: {
+                            color: 'green'
+                        }
+                    });
+                });
+
+
+                $('#btn_zig').click(function () {
+                    if (chart.series[1].visible){
+                        chart.series[1].visible = false;}
+                    else
+                    {
+                        chart.series[1].visible = true;
+                    }
+                    chart.series[1].redraw();
+                });
+
+                $('#btn_close').click(function () {
+                    if (chart.series[0].visible){
+                        chart.series[0].visible = false;}
+                    else
+                    {
+                        chart.series[0].visible = true;
+                    }
+                    chart.series[0].redraw();
+                });
+            });
+		</script>
+	</head>
+	<body>
+        <h2> {{name}} </h2>
+        <button id="btn_zig">切换显示zig线</button>
+        <button id="btn_close">切换显示收盘线</button>
+        <script src="http://cdn.hcharts.cn/highstock/highstock.js"></script>
+        <script src="http://cdn.hcharts.cn/highstock/modules/exporting.js"></script>
+        <div id="container" style="min-width:400px;height:400px"></div>
+	</body>
+</html>
+
+
